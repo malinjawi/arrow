@@ -2647,7 +2647,7 @@ cdef class Expression(_Weakrefable):
         return f"<pyarrow.compute.{self.__class__.__name__} {self}>"
 
     @staticmethod
-    def from_substrait(object message not None):
+    def from_substrait(object message not None, schema=None):
         """
         Deserialize an expression from Substrait
 
@@ -2661,13 +2661,17 @@ cdef class Expression(_Weakrefable):
         ----------
         message : bytes or Buffer or a protobuf Message
             The Substrait message to deserialize
+        schema : Schema, optional
+            The input schema to use when the Substrait message contains
+            unresolved field names or unknown types.
 
         Returns
         -------
         Expression
             The deserialized expression
         """
-        expressions = _pas().BoundExpressions.from_substrait(message).expressions
+        expressions = _pas().BoundExpressions.from_substrait(
+            message, schema=schema).expressions
         if len(expressions) == 0:
             raise ValueError("Substrait message did not contain any expressions")
         if len(expressions) > 1:
